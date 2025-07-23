@@ -1,0 +1,73 @@
+startDelaySeconds: 5
+ssl: false
+lowercaseOutputName: true
+lowercaseOutputLabelNames: true
+
+rules:
+  # Thread pool metrics (active threads, busy, max, etc.)
+  - pattern: 'Catalina<type=ThreadPool, name="(.*)">'
+    name: tomcat_threadpool_$1
+    labels:
+      port: "$1"
+
+  # Global request processor metrics (bytes sent/received, error count, request count, etc.)
+  - pattern: 'Catalina<type=GlobalRequestProcessor, name="(.*)">'
+    name: tomcat_global_request_processor_$1
+    labels:
+      port: "$1"
+
+  # Session metrics per context
+  - pattern: 'Catalina<type=Manager, context="(.*)", host="(.*)">'
+    name: tomcat_session_$1
+    labels:
+      context: "$1"
+      host: "$2"
+
+  # JVM memory pool
+  - pattern: 'java.lang:type=MemoryPool,name=(.*)'
+    name: jvm_memory_pool
+    labels:
+      pool: "$1"
+
+  # JVM memory
+  - pattern: 'java.lang:type=Memory'
+    name: jvm_memory
+
+  # JVM garbage collector
+  - pattern: 'java.lang:type=GarbageCollector,name=(.*)'
+    name: jvm_gc
+    labels:
+      collector: "$1"
+
+  # JVM threading
+  - pattern: 'java.lang:type=Threading'
+    name: jvm_threading
+
+  # JVM runtime info (uptime, start time)
+  - pattern: 'java.lang:type=Runtime'
+    name: jvm_runtime
+
+  # JVM class loading
+  - pattern: 'java.lang:type=ClassLoading'
+    name: jvm_class_loading
+
+  # System CPU load and other OS metrics
+  - pattern: 'java.lang:type=OperatingSystem'
+    name: jvm_os
+
+  # Tomcat servlet processing
+  - pattern: 'Catalina<type=Servlet, context="(.*)", servlet="(.*)", host="(.*)">'
+    name: tomcat_servlet_$2
+    labels:
+      context: "$1"
+      servlet: "$2"
+      host: "$3"
+
+  # Tomcat connector (request count, bytes sent, etc.)
+  - pattern: 'Catalina<type=Connector, port="(.*)">'
+    name: tomcat_connector_$1
+    labels:
+      port: "$1"
+
+  # Everything else
+  - pattern: '.*'
